@@ -4,6 +4,9 @@ import express from "express";
 // Criando uma instância do express
 const app = express();
 
+// Isso vai fazer interpretar o que eu for mandar via post e via put como json
+app.use(express.json())
+
 // Fiz uma const só pra poder ter um array com alguns livros
 const livros = [
     {id: 1, "titulo": "Senhor dos Aneis"},
@@ -18,6 +21,34 @@ app.get('/', (req, res) => {
 app.get('/livros', (req, res) => {
     res.status(200).json(livros)
 })
+
+app.get('/livros/:id', (req, res) => {
+    let index = buscaLivro(req.params.id);
+    res.json(livros[index])
+})
+
+app.post('/livros', (req, res) => {
+    livros.push(req.body)
+    res.status(201).send('Livro foi cadastrado com sucesso')
+})
+
+app.put('/livros/:id', (req, res) => {
+    let index = buscaLivro(req.params.id);
+    livros[index].titulo = req.body.titulo
+    res.json(livros)
+})
+
+app.delete('/livros/:id', (req, res) => {
+    let { id } = req.params
+    let index = buscaLivro(id);
+    livros.splice(index, 1)
+    res.send(`Livro ${id} removido com sucesso`)
+})
+
+// Função auxiliar dos metodos get por id, put e delete, pq é pra achar o id certo dentro do array
+function buscaLivro (id) {
+    return livros.findIndex(livro => livro.id == id)
+}
 
 // Preciso exportar a instancia do express para poder usar em outro lugar
 export default app
